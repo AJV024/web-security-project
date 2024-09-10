@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milestone 1: Single Book Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .book {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+        .book img {
+            float: left;
+            margin-right: 10px;
+        }
+        .book h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Milestone 1: Single Book Data</h1>
+    <div id="book-container"></div>
+
+    <script>
+    $(document).ready(function() {
+
+        var bookUrl = "https://raw.githubusercontent.com/AJV024/web-security-project/main/google-books-book.json";
+
+
+        $.getJSON(bookUrl, function(data) {
+            var title = data.volumeInfo.title;
+            var subtitle = data.volumeInfo.subtitle || "No subtitle available";
+            var authors = data.volumeInfo.authors ? data.volumeInfo.authors.join(", ") : "Unknown author";
+            var thumbnail = data.volumeInfo.imageLinks ? data.volumeInfo.imageLinks.thumbnail : "https://via.placeholder.com/128x192?text=No+Image";
+            var description = data.volumeInfo.description || "No description available";
+            var publisher = data.volumeInfo.publisher || "Unknown publisher";
+            var publishedDate = data.volumeInfo.publishedDate || "Unknown date";
+
+            var bookHTML = `
+                <div class="book">
+                    <img src="${thumbnail}" alt="Book cover" width="128" height="192">
+                    <h2>${title}</h2>
+                    <h3>${subtitle}</h3>
+                    <p><strong>Author(s):</strong> ${authors}</p>
+                    <p><strong>Publisher:</strong> ${publisher}</p>
+                    <p><strong>Published Date:</strong> ${publishedDate}</p>
+                    <p>${description}</p>
+                </div>
+            `;
+
+            $('#book-container').append(bookHTML);
+        }).fail(function() {
+            console.error("Failed to load book JSON data.");
+            $('#book-container').append("<p>Failed to load book data.</p>");
+        });
+    });
+    </script>
+
+</body>
+</html>
