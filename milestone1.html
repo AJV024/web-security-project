@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milestone 1: Google Books Search</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, #0066cc, #00cc99);
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+        }
+
+        .content {
+            background: #fff;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        h2, h3 {
+            color: #0066cc;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .book {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            overflow: hidden;
+            border-radius: 5px;
+        }
+
+        .book img {
+            float: left;
+            margin-right: 10px;
+        }
+
+        .book h2 {
+            margin-top: 0;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #00cc99;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Milestone 1: Google Books Search Data</h1>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <input type="text" id="search" class="search-box" placeholder="Search for books by title, author, or description">
+            <div id="books-container"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Your Name | Kennesaw State University</p>
+    </footer>
+
+    <script>
+        $(document).ready(function() {
+            console.log("Document is ready");
+
+            var jsonUrl = "https://raw.githubusercontent.com/AJV024/web-security-project/main/google-books-search.json";
+
+
+            $.getJSON(jsonUrl, function(data) {
+                function displayBooks(books) {
+                    $('#books-container').empty();
+                    if (books.length > 0) {
+                        $.each(books, function(i, book) {
+                            var title = book.volumeInfo.title;
+                            var subtitle = book.volumeInfo.subtitle || "No subtitle available";
+                            var authors = book.volumeInfo.authors ? book.volumeInfo.authors.join(", ") : "Unknown author";
+                            var thumbnail = book.volumeInfo.imageLinks ? book.volumeInfo.imageLinks.thumbnail : "https://via.placeholder.com/128x192?text=No+Image";
+                            var description = book.volumeInfo.description || "No description available";
+
+                            var bookHTML = `
+                                <div class="book">
+                                    <img src="${thumbnail}" alt="Book cover" width="128" height="192">
+                                    <h2>${title}</h2>
+                                    <h3>${subtitle}</h3>
+                                    <p><strong>Author(s):</strong> ${authors}</p>
+                                    <p>${description}</p>
+                                </div>
+                            `;
+
+                            $('#books-container').append(bookHTML);
+                        });
+                    } else {
+                        $('#books-container').append("<p>No books found.</p>");
+                    }
+                }
+
+                displayBooks(data.items);
+
+                $('#search').on('input', function() {
+                    var query = $(this).val().toLowerCase();
+                    var filteredBooks = data.items.filter(function(book) {
+                        var title = book.volumeInfo.title.toLowerCase();
+                        var authors = book.volumeInfo.authors ? book.volumeInfo.authors.join(", ").toLowerCase() : "";
+                        var description = book.volumeInfo.description ? book.volumeInfo.description.toLowerCase() : "";
+                        return title.includes(query) || authors.includes(query) || description.includes(query);
+                    });
+                    displayBooks(filteredBooks);
+                });
+            }).fail(function() {
+                console.error("Failed to load JSON data.");
+                $('#books-container').append("<p>Failed to load book data.</p>");
+            });
+        });
+    </script>
+</body>
+</html>
